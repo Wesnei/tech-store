@@ -34,10 +34,9 @@ export function ProductCard({ product, onEdit, onDelete, showActions = false }: 
 
     setAddedToCart(true)
     toast({
-      title: "Produto adicionado!",
-      description: `${product.name} foi adicionado ao seu carrinho.`,
-      action: <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
-        <ShoppingCartIcon className="h-5 w-5 text-primary" />
+      title: `"${product.name}" adicionado ao carrinho!`,
+      action: <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+        <ShoppingCartIcon className="h-4 w-4 text-primary" />
       </div>,
     })
 
