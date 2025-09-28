@@ -13,7 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Search, Sparkles, Shield, Truck } from "lucide-react"
 import { useProducts, type Product } from "@/hooks/use-products"
 import { useAuth } from "@/hooks/use-auth"
-import { useToast } from "@/hooks/use-toast"
 
 export default function HomePage() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false)
@@ -23,7 +22,6 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true)
 
   const { searchTerm, selectedCategory, setSearchTerm, setSelectedCategory, getFilteredProducts } = useProducts()
-  const { toast } = useToast()
 
   const { user } = useAuth()
   const filteredProducts = getFilteredProducts()
@@ -51,27 +49,6 @@ export default function HomePage() {
   const handleDeleteProduct = (product: Product) => {
     setSelectedProduct(product)
     setIsDeleteModalOpen(true)
-  }
-
-  const handleProductCreated = () => {
-    toast({
-      title: "Produto criado!",
-      description: "O produto foi adicionado com sucesso.",
-    })
-  }
-
-  const handleProductUpdated = () => {
-    toast({
-      title: "Produto atualizado!",
-      description: "As alterações foram salvas com sucesso.",
-    })
-  }
-
-  const handleProductDeleted = () => {
-    toast({
-      title: "Produto removido!",
-      description: "O produto foi removido com sucesso.",
-    })
   }
 
   const categories = [
@@ -205,14 +182,14 @@ export default function HomePage() {
         onClose={() => setIsProductModalOpen(false)}
         product={selectedProduct}
         mode={modalMode}
-        onSuccess={modalMode === "create" ? handleProductCreated : handleProductUpdated}
+        onSuccess={() => {}} // Remove the redundant toast callbacks
       />
 
       <DeleteProductModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         product={selectedProduct}
-        onSuccess={handleProductDeleted}
+        onSuccess={() => {}} // Remove the redundant toast callbacks
       />
     </div>
   )

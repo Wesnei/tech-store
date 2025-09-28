@@ -9,11 +9,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AlertMessage } from "@/components/ui/alert-message"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Upload, Link, X } from "lucide-react"
+import { Upload, Link, X, CheckCircle, AlertCircle } from "lucide-react"
 import type { Product } from "@/hooks/use-products"
 import { useProducts } from "@/hooks/use-products"
+import { useToast } from "@/hooks/use-toast"
 
 interface ProductModalProps {
   isOpen: boolean
@@ -35,12 +35,12 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
     image: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [imageMode, setImageMode] = useState<"url" | "upload">("url")
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>("")
 
   const { addProduct, updateProduct, isLoading } = useProducts()
+  const { toast } = useToast()
 
   useEffect(() => {
     if (product && mode === "edit") {
@@ -65,7 +65,6 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
       setPreviewUrl("")
     }
     setErrors({})
-    setAlert(null)
     setSelectedFile(null)
     setImageMode("url")
   }, [product, mode, isOpen])
@@ -74,17 +73,25 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
     const file = e.target.files?.[0]
     if (file) {
       if (!file.type.startsWith("image/")) {
-        setAlert({
-          type: "error",
-          message: "Por favor, selecione apenas arquivos de imagem",
+        toast({
+          title: "Erro no upload",
+          description: "Por favor, selecione apenas arquivos de imagem.",
+          variant: "destructive",
+          action: <div className="flex h-9 w-9 items-center justify-center rounded-full bg-destructive/10">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+          </div>,
         })
         return
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        setAlert({
-          type: "error",
-          message: "A imagem deve ter no máximo 5MB",
+        toast({
+          title: "Arquivo muito grande",
+          description: "A imagem deve ter no máximo 5MB.",
+          variant: "destructive",
+          action: <div className="flex h-9 w-9 items-center justify-center rounded-full bg-destructive/10">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+          </div>,
         })
         return
       }
@@ -154,9 +161,13 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
       try {
         imageData = await fileToBase64(selectedFile)
       } catch (error) {
-        setAlert({
-          type: "error",
-          message: "Erro ao processar a imagem",
+        toast({
+          title: "Erro ao processar imagem",
+          description: "Não foi possível processar a imagem selecionada.",
+          variant: "destructive",
+          action: <div className="flex h-9 w-9 items-center justify-center rounded-full bg-destructive/10">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+          </div>,
         })
         return
       }
@@ -179,16 +190,27 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
     }
 
     if (result) {
-      setAlert({
-        type: result.success ? "success" : "error",
-        message: result.message,
-      })
-
       if (result.success) {
+        toast({
+          title: `"${productData.name}" ${mode === "create" ? "criado" : "atualizado"} com sucesso!`,
+          action: <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          </div>,
+        })
+        
         onSuccess?.()
         setTimeout(() => {
           onClose()
         }, 1500)
+      } else {
+        toast({
+          title: "Erro na operação",
+          description: result.message,
+          variant: "destructive",
+          action: <div className="flex h-9 w-9 items-center justify-center rounded-full bg-destructive/10">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+          </div>,
+        })
       }
     }
   }
@@ -201,8 +223,6 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
         </DialogHeader>
 
         <div className="space-y-4">
-          {alert && <AlertMessage type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nome do Produto</Label>
