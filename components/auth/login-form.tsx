@@ -128,7 +128,7 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
                 onClick={onSwitchToRegister}
                 className="text-primary hover:underline font-medium transition-all hover:scale-105"
               >
-                Cadastre-se aqui
+                Cadastre-se
               </button>
             </p>
           </div>
