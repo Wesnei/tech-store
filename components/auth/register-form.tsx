@@ -249,7 +249,7 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
                 onClick={onSwitchToLogin} 
                 className="text-primary hover:underline font-medium transition-all hover:scale-105"
               >
-                Faça login aqui
+                Faça login
               </button>
             </p>
           </div>
