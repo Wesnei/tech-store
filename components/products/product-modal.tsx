@@ -217,7 +217,7 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "Adicionar Produto" : "Editar Produto"}</DialogTitle>
         </DialogHeader>

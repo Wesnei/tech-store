@@ -66,7 +66,7 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] h-auto max-h-[calc(100vh-2rem)] flex flex-col w-[95vw] max-w-[95vw] sm:w-auto p-0">
+      <DialogContent className="sm:max-w-[480px] h-auto max-h-[calc(100vh-2rem)] flex flex-col w-[95vw] max-w-[95vw] sm:w-auto p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5" />

@@ -25,7 +25,7 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
-  const { login, isLoading } = useAuth()
+  const { login, isLoading, error } = useAuth()
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -67,6 +67,8 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
           <CardDescription className="text-sm">Acesse sua conta para continuar</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pb-6">
+          {error && <AlertMessage type="error" message={error} onClose={() => useAuth.getState().logout()} />}
+          
           {alert && <AlertMessage type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
 
           <form onSubmit={handleSubmit} className="space-y-4">

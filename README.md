@@ -13,7 +13,7 @@ Desenvolver uma aplicação frontend completa para uma loja virtual de tecnologi
 ## 🚀 Funcionalidades Implementadas
 
 - **Interface Moderna e Responsiva**: Design limpo e responsivo com animações suaves
-- **Sistema de Autenticação**: Login e registro com validação de formulários (dados mockados)
+- **Sistema de Autenticação**: Login e registro com validação de formulários (integrado com API)
 - **Gestão de Produtos**: Operações completas de CRUD para produtos
 - **Carrinho de Compras**: Funcionalidade intuitiva de carrinho com gerenciamento de itens
 - **Busca de Produtos**: Busca simples por nome e descrição
@@ -30,6 +30,7 @@ Desenvolver uma aplicação frontend completa para uma loja virtual de tecnologi
 - **Gerenciamento de Estado**: Zustand
 - **Ícones**: Lucide React
 - **Validações**: Funções customizadas para CPF, email, etc.
+- **API Client**: Axios com interceptors
 
 ## 📁 Estrutura do Projeto
 
@@ -61,6 +62,17 @@ tech-store/
 git clone <url-do-repositorio>
 cd tech-store
 npm install
+```
+
+### Configuração de Variáveis de Ambiente
+Copie o arquivo [.env.example](.env.example) para `.env.local` e configure as variáveis:
+
+```bash
+cp .env.example .env.local
+```
+
+### Execução
+```bash
 npm run dev
 ```
 
@@ -74,10 +86,12 @@ npm start
 
 ## 🔐 Sistema de Autenticação
 
-- Login com email/senha (dados mockados)
+- Login com email/senha (integrado com API)
 - Registro com validação de CPF, telefone, etc.
 - Máscaras para CPF e telefone
 - Validação de confirmação de senha
+- Gerenciamento de estado com persistência
+- Middleware para proteção de rotas
 
 ## 🛒 Carrinho de Compras
 
@@ -100,6 +114,7 @@ npm start
 - **Componentes Reutilizáveis**: 15 componentes UI otimizados
 - **TypeScript**: Tipagem completa
 - **Toasts**: Sistema de notificações
+- **API Integration**: Integração completa com endpoints de autenticação
 
 ## 📄 Licença
 
