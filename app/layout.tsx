@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "@/components/ui/toaster"
+import { ThemeProvider } from "@/components/theme-provider"
 import { Suspense } from "react"
 import "./globals.css"
 
@@ -19,13 +20,20 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className="overflow-x-hidden">
+    <html lang="pt-BR" className="overflow-x-hidden dark" style={{ colorScheme: 'dark' }}>
       <body className="font-sans overflow-x-hidden">
-        <Suspense fallback={null}>
-          {children}
-          <Toaster />
-        </Suspense>
-        <Analytics />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Suspense fallback={null}>
+            {children}
+            <Toaster />
+          </Suspense>
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -3,6 +3,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { useCart } from "./use-cart"
+import { authApi } from "@/lib/api"
 
 export interface User {
   id: string
@@ -12,9 +13,13 @@ export interface User {
   phone: string
 }
 
-interface AuthStore {
+interface AuthState {
   user: User | null
   isLoading: boolean
+  error: string | null
+}
+
+interface AuthStore extends AuthState {
   login: (email: string, password: string) => Promise<{ success: boolean; message: string }>
   register: (userData: {
     name: string
@@ -24,80 +29,66 @@ interface AuthStore {
     password: string
   }) => Promise<{ success: boolean; message: string }>
   logout: () => void
+  setUser: (user: User | null) => void
 }
-
-const mockUsers: Array<User & { password: string }> = [
-  {
-    id: "1",
-    name: "João Silva",
-    email: "joao@email.com",
-    cpf: "123.456.789-00",
-    phone: "(11) 99999-9999",
-    password: "123456",
-  },
-]
 
 export const useAuth = create<AuthStore>()(
   persist(
     (set, get) => ({
       user: null,
       isLoading: false,
+      error: null,
+
+      setUser: (user) => set({ user }),
 
       login: async (email: string, password: string) => {
-        set({ isLoading: true })
+        set({ isLoading: true, error: null })
 
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        try {
+          const result = await authApi.login({ email, password })
 
-        const user = mockUsers.find((u) => u.email === email && u.password === password)
-
-        if (user) {
-          const { password: _, ...userWithoutPassword } = user
-          set({ user: userWithoutPassword, isLoading: false })
-          return { success: true, message: "Login realizado com sucesso!" }
-        } else {
-          set({ isLoading: false })
-          return { success: false, message: "Email ou senha inválidos." }
+          if (result.success && result.data) {
+            const user = result.data.user || result.data
+            set({ user, isLoading: false })
+            return { success: true, message: "Login realizado com sucesso!" }
+          } else {
+            set({ isLoading: false })
+            return { success: false, message: result.message }
+          }
+        } catch (error: any) {
+          set({ isLoading: false, error: error.message || "Erro desconhecido" })
+          return { success: false, message: error.message || "Falha ao fazer login" }
         }
       },
 
       register: async (userData) => {
-        set({ isLoading: true })
+        set({ isLoading: true, error: null })
 
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        try {
+          const result = await authApi.register(userData)
 
-        const existingUser = mockUsers.find((u) => u.email === userData.email || u.cpf === userData.cpf)
-
-        if (existingUser) {
-          set({ isLoading: false })
-          if (existingUser.email === userData.email) {
-            return { success: false, message: "Este email já está cadastrado." }
+          if (result.success && result.data) {
+            set({ isLoading: false })
+            return { success: true, message: "Cadastro realizado com sucesso! Faça login para continuar." }
           } else {
-            return { success: false, message: "Este CPF já está cadastrado." }
+            set({ isLoading: false })
+            return { success: false, message: result.message }
           }
+        } catch (error: any) {
+          set({ isLoading: false, error: error.message || "Erro desconhecido" })
+          return { success: false, message: error.message || "Falha ao registrar" }
         }
-
-        const newUser = {
-          id: Date.now().toString(),
-          ...userData,
-          password: userData.password,
-        }
-
-        mockUsers.push(newUser)
-
-        const { password: _, ...userWithoutPassword } = newUser
-        set({ user: userWithoutPassword, isLoading: false })
-
-        return { success: true, message: "Cadastro realizado com sucesso!" }
       },
 
       logout: () => {
-        set({ user: null })
+        set({ user: null, error: null })
         const { clearCart } = useCart.getState()
         clearCart()
       },
     }),
     {
       name: "auth-storage",
+      partialize: (state) => ({ user: state.user }), 
     },
   ),
 )

@@ -22,13 +22,13 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4 w-full" style={{maxWidth: '100%'}}>
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4 w-full">
       {isLogin ? (
         <div className="w-full max-w-sm mx-auto">
           <LoginForm onSwitchToRegister={() => setIsLogin(false)} />
         </div>
       ) : (
-        <div className="w-full max-w-md mx-auto" style={{width: '100%'}}>
+        <div className="w-full max-w-md mx-auto">
           <RegisterForm onSwitchToLogin={() => setIsLogin(true)} />
         </div>
       )}

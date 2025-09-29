@@ -31,7 +31,7 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
-  const { register, isLoading } = useAuth()
+  const { register, isLoading, error } = useAuth()
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -93,6 +93,12 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
       type: result.success ? "success" : "error",
       message: result.message,
     })
+
+    if (result.success) {
+      setTimeout(() => {
+        onSwitchToLogin()
+      }, 2000)
+    }
   }
 
   const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,13 +112,15 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   }
 
   return (
-    <div className="auth-form-container mx-auto animate-fade-in w-full max-w-md" style={{width: '100%'}}>
+    <div className="auth-form-container mx-auto animate-fade-in w-full max-w-md">
       <Card className="w-full shadow-xl border-0 bg-gradient-to-br from-background to-muted/20 backdrop-blur-sm rounded-2xl">
         <CardHeader className="space-y-1 text-center pb-4 pt-6">
           <CardTitle className="text-2xl font-bold">Criar Conta</CardTitle>
           <CardDescription className="text-sm">Registre-se para começar a comprar</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pb-6">
+          {error && <AlertMessage type="error" message={error} onClose={() => useAuth.getState().logout()} />}
+          
           {alert && <AlertMessage type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -148,7 +156,7 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{maxWidth: '100%'}}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="cpf" className="text-sm font-medium">CPF</Label>
                 <div className="relative">

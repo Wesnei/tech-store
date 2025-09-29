@@ -75,7 +75,7 @@ export function ProductCard({ product, onEdit, onDelete, showActions = false }: 
         )}
       </div>
 
-      <CardContent className="p-4 space-y-2 flex-1 bg-gradient-to-b from-background to-muted/30">
+      <CardContent className="p-4 space-y-2 flex-1 bg-background">
         <div className="space-y-1">
           <h3 className="font-semibold text-lg line-clamp-1 text-foreground">{product.name}</h3>
           <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
@@ -89,7 +89,7 @@ export function ProductCard({ product, onEdit, onDelete, showActions = false }: 
         <div className="text-sm text-muted-foreground">Estoque: {product.stock} unidades</div>
       </CardContent>
 
-      <CardFooter className="p-4 pt-0 space-y-2 bg-muted/20 flex flex-col items-center">
+      <CardFooter className="p-4 pt-0 space-y-2 bg-background flex flex-col items-center">
         {showActions ? (
           <div className="flex gap-2 w-full justify-center items-center">
             <Button 

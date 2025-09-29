@@ -134,8 +134,8 @@ export default function HomePage() {
               </div>
             ) : filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16 animate-fade-in">
-                {filteredProducts.map((product, index) => (
-                  <div key={product.id} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                {filteredProducts.map((product) => (
+                  <div key={product.id} className="animate-slide-up">
                     <ProductCard
                       product={product}
                       onEdit={handleEditProduct}
