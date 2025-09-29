@@ -2,6 +2,7 @@
 
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import { productApi } from "@/lib/api"
 
 export interface Product {
   id: string
@@ -9,160 +10,154 @@ export interface Product {
   description: string
   price: number
   image: string
-  category: string
-  stock: number
-  createdAt: Date
+  imageUrl?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+interface ProductsResponse {
+  page?: number
+  limit?: number
+  total?: number
+  products: Product[]
 }
 
 interface ProductStore {
   products: Product[]
   isLoading: boolean
-  searchTerm: string
-  selectedCategory: string
-  addProduct: (product: Omit<Product, "id" | "createdAt">) => Promise<{ success: boolean; message: string }>
+  error: string | null
+  fetchProducts: () => Promise<void>
+  addProduct: (product: Omit<Product, "id" | "createdAt" | "updatedAt">) => Promise<{ success: boolean; message: string }>
   updateProduct: (id: string, product: Partial<Product>) => Promise<{ success: boolean; message: string }>
   deleteProduct: (id: string) => Promise<{ success: boolean; message: string }>
-  setSearchTerm: (term: string) => void
-  setSelectedCategory: (category: string) => void
-  getFilteredProducts: () => Product[]
+  getProducts: () => Product[]
 }
-
-const mockProducts: Product[] = [
-  {
-    id: "1",
-    name: "iPhone 15 Pro",
-    description: "O mais avançado iPhone com chip A17 Pro e câmera profissional",
-    price: 8999.99,
-    image: "/iphone-15-pro.png",
-    category: "Smartphones",
-    stock: 15,
-    createdAt: new Date("2024-01-15"),
-  },
-  {
-    id: "2",
-    name: "MacBook Air M3",
-    description: "Notebook ultrafino com chip M3 e bateria de longa duração",
-    price: 12999.99,
-    image: "/macbook-air-laptop.jpg",
-    category: "Notebooks",
-    stock: 8,
-    createdAt: new Date("2024-01-20"),
-  },
-  {
-    id: "3",
-    name: "AirPods Pro 2",
-    description: "Fones sem fio com cancelamento ativo de ruído",
-    price: 2499.99,
-    image: "/airpods-pro-wireless-earbuds.jpg",
-    category: "Acessórios",
-    stock: 25,
-    createdAt: new Date("2024-01-25"),
-  },
-  {
-    id: "4",
-    name: "Samsung Galaxy S24",
-    description: "Smartphone Android com IA integrada e câmera de 200MP",
-    price: 7499.99,
-    image: "/samsung-galaxy-s24-smartphone.jpg",
-    category: "Smartphones",
-    stock: 12,
-    createdAt: new Date("2024-02-01"),
-  },
-  {
-    id: "5",
-    name: "Dell XPS 13",
-    description: "Notebook premium com tela InfinityEdge e processador Intel",
-    price: 9999.99,
-    image: "/dell-xps-13-laptop.jpg",
-    category: "Notebooks",
-    stock: 6,
-    createdAt: new Date("2024-02-05"),
-  },
-  {
-    id: "6",
-    name: "Sony WH-1000XM5",
-    description: "Headphone premium com cancelamento de ruído líder da indústria",
-    price: 1899.99,
-    image: "/sony-wh-1000xm5.png",
-    category: "Acessórios",
-    stock: 18,
-    createdAt: new Date("2024-02-10"),
-  },
-]
 
 export const useProducts = create<ProductStore>()(
   persist(
     (set, get) => ({
-      products: mockProducts,
+      products: [],
       isLoading: false,
-      searchTerm: "",
-      selectedCategory: "",
+      error: null,
+
+      fetchProducts: async () => {
+        set({ isLoading: true, error: null })
+        try {
+          const response = await productApi.getProducts()
+          if (response.success && response.data) {
+            // Handle both array and object with products array
+            let productsArray: Product[] = []
+            
+            if (Array.isArray(response.data)) {
+              productsArray = response.data.map(product => ({
+                ...product,
+                // Map imageUrl to image for consistency
+                image: product.imageUrl || product.image || "/placeholder.svg"
+              }))
+            } else if (typeof response.data === 'object' && 'products' in response.data) {
+              const productsData = (response.data as ProductsResponse).products || []
+              productsArray = productsData.map(product => ({
+                ...product,
+                // Map imageUrl to image for consistency
+                image: product.imageUrl || product.image || "/placeholder.svg"
+              }))
+            }
+            
+            set({ products: productsArray, isLoading: false })
+          } else {
+            set({ error: response.message, isLoading: false })
+          }
+        } catch (error) {
+          console.error("Error fetching products:", error)
+          set({ error: "Failed to fetch products", isLoading: false })
+        }
+      },
 
       addProduct: async (productData) => {
-        set({ isLoading: true })
+        set({ isLoading: true, error: null })
 
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        const newProduct: Product = {
-          ...productData,
-          id: Date.now().toString(),
-          createdAt: new Date(),
+        try {
+          const response = await productApi.createProduct(productData)
+          
+          if (response.success && response.data) {
+            const newProduct = response.data.product || response.data
+            
+            set((state) => ({
+              products: [...state.products, newProduct],
+              isLoading: false,
+            }))
+            return { success: true, message: "Produto adicionado com sucesso!" }
+          } else {
+            set({ isLoading: false })
+            return { success: false, message: response.message }
+          }
+        } catch (error) {
+          console.error("Error adding product:", error)
+          set({ isLoading: false })
+          return { success: false, message: "Erro ao adicionar produto" }
         }
-
-        set((state) => ({
-          products: [...state.products, newProduct],
-          isLoading: false,
-        }))
-
-        return { success: true, message: "Produto adicionado com sucesso!" }
       },
 
       updateProduct: async (id, productData) => {
-        set({ isLoading: true })
+        set({ isLoading: true, error: null })
 
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        set((state) => ({
-          products: state.products.map((product) => (product.id === id ? { ...product, ...productData } : product)),
-          isLoading: false,
-        }))
-
-        return { success: true, message: "Produto atualizado com sucesso!" }
+        try {
+          const response = await productApi.updateProduct(id, productData)
+          
+          if (response.success && response.data) {
+            // Handle both direct product object and object with product property
+            const updatedProduct = response.data.product || response.data
+            
+            set((state) => ({
+              products: state.products.map((product) => 
+                product.id === id ? { ...product, ...updatedProduct } : product
+              ),
+              isLoading: false,
+            }))
+            return { success: true, message: "Produto atualizado com sucesso!" }
+          } else {
+            set({ isLoading: false })
+            return { success: false, message: response.message }
+          }
+        } catch (error) {
+          console.error("Error updating product:", error)
+          set({ isLoading: false })
+          return { success: false, message: "Erro ao atualizar produto" }
+        }
       },
 
       deleteProduct: async (id) => {
-        set({ isLoading: true })
+        set({ isLoading: true, error: null })
 
-        await new Promise((resolve) => setTimeout(resolve, 500))
-
-        set((state) => ({
-          products: state.products.filter((product) => product.id !== id),
-          isLoading: false,
-        }))
-
-        return { success: true, message: "Produto removido com sucesso!" }
+        try {
+          const response = await productApi.deleteProduct(id)
+          
+          if (response.success) {
+            set((state) => ({
+              products: state.products.filter((product) => product.id !== id),
+              isLoading: false,
+            }))
+            return { success: true, message: "Produto removido com sucesso!" }
+          } else {
+            set({ isLoading: false })
+            return { success: false, message: response.message }
+          }
+        } catch (error) {
+          console.error("Error deleting product:", error)
+          set({ isLoading: false })
+          return { success: false, message: "Erro ao excluir produto" }
+        }
       },
 
-      setSearchTerm: (term) => {
-        set({ searchTerm: term })
-      },
+      getProducts: () => {
+        const { products } = get()
 
-      setSelectedCategory: (category) => {
-        set({ selectedCategory: category })
-      },
+        if (!Array.isArray(products)) {
+          console.error("Products is not an array:", products)
+          return []
+        }
 
-      getFilteredProducts: () => {
-        const { products, searchTerm, selectedCategory } = get()
-
-        return products.filter((product) => {
-          const matchesSearch =
-            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.description.toLowerCase().includes(searchTerm.toLowerCase())
-
-          const matchesCategory = selectedCategory === "" || product.category === selectedCategory
-
-          return matchesSearch && matchesCategory
-        })
+        return products
       },
     }),
     {
