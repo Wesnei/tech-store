@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Edit, Trash2, ShoppingCart, Check, AlertCircle, ShoppingCartIcon } from "lucide-react"
 import type { Product } from "@/hooks/use-products"
 import { useCart } from "@/hooks/use-cart"
@@ -24,7 +24,8 @@ export function ProductCard({ product, onEdit, onDelete, showActions = false }: 
   const { user } = useAuth()
   const { toast } = useToast()
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     addItem({
       id: product.id,
       name: product.name,
@@ -61,32 +62,27 @@ export function ProductCard({ product, onEdit, onDelete, showActions = false }: 
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col h-full border-2 hover:border-primary/30">
-      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-muted/50 to-muted-foreground/5">
+      <Link href={`/products/${product.id}`} className="relative aspect-square overflow-hidden bg-gradient-to-br from-muted/50 to-muted-foreground/5">
         <Image
           src={product.image || "/placeholder.svg"}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        {product.stock <= 5 && (
-          <Badge variant="destructive" className="absolute top-2 right-2 animate-pulse">
-            Estoque baixo
-          </Badge>
-        )}
-      </div>
+      </Link>
 
       <CardContent className="p-4 space-y-2 flex-1 bg-background">
         <div className="space-y-1">
-          <h3 className="font-semibold text-lg line-clamp-1 text-foreground">{product.name}</h3>
+          <Link href={`/products/${product.id}`} className="hover:text-primary transition-colors">
+            <h3 className="font-semibold text-lg line-clamp-1 text-foreground">{product.name}</h3>
+          </Link>
           <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold text-primary">{formatPrice(product.price)}</span>
-          <Badge variant="secondary" className="animate-fade-in">{product.category}</Badge>
         </div>
-
-        <div className="text-sm text-muted-foreground">Estoque: {product.stock} unidades</div>
       </CardContent>
 
       <CardFooter className="p-4 pt-0 space-y-2 bg-background flex flex-col items-center">
@@ -95,7 +91,6 @@ export function ProductCard({ product, onEdit, onDelete, showActions = false }: 
             <Button 
               onClick={handleAddToCart} 
               className="flex-1 h-9 text-sm shadow-sm hover:shadow-md transition-all rounded-full cursor-pointer min-w-[120px]"
-              disabled={product.stock === 0}
             >
               {addedToCart ? (
                 <>
@@ -105,9 +100,7 @@ export function ProductCard({ product, onEdit, onDelete, showActions = false }: 
               ) : (
                 <>
                   <ShoppingCart className="mr-2 h-4 w-4" />
-                  <span className="truncate">
-                    {product.stock === 0 ? "Fora de estoque" : "Adicionar"}
-                  </span>
+                  <span className="truncate">Adicionar</span>
                 </>
               )}
             </Button>
@@ -137,7 +130,6 @@ export function ProductCard({ product, onEdit, onDelete, showActions = false }: 
             <Button 
               onClick={handleAddToCart} 
               className="w-40 h-11 text-base shadow-sm hover:shadow-md transition-all rounded-full cursor-pointer"
-              disabled={product.stock === 0}
             >
               {addedToCart ? (
                 <>
@@ -147,9 +139,7 @@ export function ProductCard({ product, onEdit, onDelete, showActions = false }: 
               ) : (
                 <>
                   <ShoppingCart className="mr-2 h-4 w-4" />
-                  <span className="truncate">
-                    {product.stock === 0 ? "Fora de estoque" : "Adicionar"}
-                  </span>
+                  <span className="truncate">Adicionar</span>
                 </>
               )}
             </Button>

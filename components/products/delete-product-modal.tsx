@@ -40,6 +40,7 @@ export function DeleteProductModal({ isOpen, onClose, product, onSuccess }: Dele
     } else {
       toast({
         title: "Erro ao excluir produto!",
+        description: result.message,
         variant: "destructive",
         action: <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
           <AlertCircle className="h-4 w-4 text-red-600" />
@@ -52,14 +53,14 @@ export function DeleteProductModal({ isOpen, onClose, product, onSuccess }: Dele
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px]" aria-describedby="delete-product-modal-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-destructive" />
             Confirmar Exclusão
           </DialogTitle>
-          <DialogDescription>
-            Esta ação não pode ser desfeita. O produto será removido permanentemente.
+          <DialogDescription id="delete-product-modal-description" className="sr-only">
+            Confirmação para excluir o produto selecionado
           </DialogDescription>
         </DialogHeader>
 

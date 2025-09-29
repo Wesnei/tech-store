@@ -6,7 +6,9 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "test:api": "node test-api-response.js",
+    "test:auth": "node test-auth.js"
   },
   "dependencies": {
     "@next/font": "^14.2.15",

@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,8 +30,6 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
     name: "",
     description: "",
     price: "",
-    category: "",
-    stock: "",
     image: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -48,25 +46,27 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
         name: product.name,
         description: product.description,
         price: product.price.toString(),
-        category: product.category,
-        stock: product.stock.toString(),
         image: product.image,
       })
       setPreviewUrl(product.image)
+      
+      if (product.image && (product.image.startsWith('http') || product.image.startsWith('/'))) {
+        setImageMode("url")
+      } else {
+        setImageMode("upload")
+      }
     } else {
       setFormData({
         name: "",
         description: "",
         price: "",
-        category: "",
-        stock: "",
         image: "",
       })
       setPreviewUrl("")
+      setImageMode("url")
     }
     setErrors({})
     setSelectedFile(null)
-    setImageMode("url")
   }, [product, mode, isOpen])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,19 +106,6 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
     }
   }
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = () => {
-        const result = reader.result as string
-        const base64 = result.split(",")[1]
-        resolve(base64)
-      }
-      reader.onerror = (error) => reject(error)
-    })
-  }
-
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
@@ -136,16 +123,6 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
       newErrors.price = "Preço deve ser maior que zero"
     }
 
-    if (!formData.category) {
-      newErrors.category = "Categoria é obrigatória"
-    }
-
-    if (!formData.stock) {
-      newErrors.stock = "Estoque é obrigatório"
-    } else if (Number.parseInt(formData.stock) < 0) {
-      newErrors.stock = "Estoque não pode ser negativo"
-    }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -155,30 +132,16 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
 
     if (!validateForm()) return
 
-    let imageData = formData.image || `/placeholder.svg?height=300&width=300&query=${formData.name}`
-
+    let imageData: File | string = formData.image || `/placeholder.svg?height=300&width=300&query=${formData.name}`
+    
     if (imageMode === "upload" && selectedFile) {
-      try {
-        imageData = await fileToBase64(selectedFile)
-      } catch (error) {
-        toast({
-          title: "Erro ao processar imagem",
-          description: "Não foi possível processar a imagem selecionada.",
-          variant: "destructive",
-          action: <div className="flex h-9 w-9 items-center justify-center rounded-full bg-destructive/10">
-            <AlertCircle className="h-5 w-5 text-destructive" />
-          </div>,
-        })
-        return
-      }
+      imageData = selectedFile
     }
 
-    const productData = {
+    const productData: any = {
       name: formData.name.trim(),
       description: formData.description.trim(),
       price: Number.parseFloat(formData.price),
-      category: formData.category,
-      stock: Number.parseInt(formData.stock),
       image: imageData,
     }
 
@@ -217,9 +180,12 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto" aria-describedby="product-modal-description">
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "Adicionar Produto" : "Editar Produto"}</DialogTitle>
+          <DialogDescription id="product-modal-description" className="sr-only">
+            {mode === "create" ? "Formulário para adicionar um novo produto" : "Formulário para editar um produto existente"}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -249,55 +215,19 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
               {errors.description && <p className="text-sm text-descriptive">{errors.description}</p>}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price">Preço (R$)</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="0.00"
-                  className={errors.price ? "border-destructive" : ""}
-                />
-                {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="stock">Estoque</Label>
-                <Input
-                  id="stock"
-                  type="number"
-                  min="0"
-                  value={formData.stock}
-                  onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                  placeholder="0"
-                  className={errors.stock ? "border-destructive" : ""}
-                />
-                {errors.stock && <p className="text-sm text-destructive">{errors.stock}</p>}
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <Label htmlFor="category">Categoria</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
-              >
-                <SelectTrigger className={errors.category ? "border-destructive" : ""}>
-                  <SelectValue placeholder="Selecione uma categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.category && <p className="text-sm text-destructive">{errors.category}</p>}
+              <Label htmlFor="price">Preço (R$)</Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                placeholder="0.00"
+                className={errors.price ? "border-destructive" : ""}
+              />
+              {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
             </div>
 
             <div className="space-y-3">
@@ -360,7 +290,7 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Selecione uma imagem (máx. 5MB) - será convertida para base64 para o backend
+                    Selecione uma imagem (máx. 5MB) - será enviada para o backend
                   </p>
                 </div>
               )}
@@ -373,7 +303,11 @@ export function ProductModal({ isOpen, onClose, product, mode, onSuccess }: Prod
                       src={previewUrl || "/placeholder.svg"}
                       alt="Preview"
                       className="w-full h-full object-cover"
-                      onError={() => setPreviewUrl("")}
+                      onError={(e) => {
+                        // Handle image load error
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder.svg";
+                      }}
                     />
                   </div>
                 </div>

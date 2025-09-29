@@ -12,26 +12,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import {
   Menu,
   X,
-  Search,
   Store,
   LogOut,
   UserCircle,
   User,
   ShoppingCart,
+  Plus,
+  Search,
 } from "lucide-react"
 import { CartDropdown } from "@/components/cart/cart-dropdown"
 import { useAuth } from "@/hooks/use-auth"
-import { useProducts } from "@/hooks/use-products"
+import { isUserAdmin } from "@/lib/auth"
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [searchValue, setSearchValue] = useState("")
   const { user, logout } = useAuth()
-  const { setSearchTerm } = useProducts()
   const router = useRouter()
+  const isAdmin = isUserAdmin()
 
   const handleAuthClick = () => {
     if (user) {
@@ -41,17 +42,8 @@ export function Navbar() {
     }
   }
 
-  const handleSearch = (value: string) => {
-    setSearchValue(value)
-    setSearchTerm(value)
-  }
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const productsSection = document.querySelector(".products-grid")
-    if (productsSection) {
-      productsSection.scrollIntoView({ behavior: "smooth" })
-    }
+  const handleAddProduct = () => {
+    window.dispatchEvent(new CustomEvent('openCreateProductModal'))
   }
 
   return (
@@ -65,17 +57,15 @@ export function Navbar() {
           </Link>
 
           {/* Search Bar */}
-          <div className="hidden md:flex items-center flex-1 max-w-[180px] lg:max-w-[220px] mx-2">
-            <form onSubmit={handleSearchSubmit} className="relative w-full">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Buscar Produtos..."
-                value={searchValue}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-8 pr-3 py-2 text-sm bg-muted border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent transition-all"
+          <div className="hidden md:flex flex-1 max-w-md mx-4">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                type="search"
+                placeholder="Buscar produtos..."
+                className="pl-10 w-full"
               />
-            </form>
+            </div>
           </div>
 
           <div className="flex items-center space-x-2 md:space-x-4 flex-shrink-0">
@@ -102,6 +92,16 @@ export function Navbar() {
                     <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
                   <DropdownMenuSeparator />
+                  {/* Add Product Button in User Dropdown - Only visible to admin users */}
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuItem onClick={handleAddProduct}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Adicionar Produto
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
                   <DropdownMenuItem onClick={logout} className="text-destructive hover:bg-destructive/10">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sair
@@ -132,21 +132,19 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Search and Menu */}
         {isMenuOpen && (
           <div className="md:hidden border-t bg-background animate-fade-in overflow-hidden">
             <div className="px-2 pt-2 pb-3 space-y-3 max-w-full">
               {/* Mobile Search */}
-              <form onSubmit={handleSearchSubmit} className="relative w-full">
-                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Buscar Produtos..."
-                  value={searchValue}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 text-sm bg-muted border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent"
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  type="search"
+                  placeholder="Buscar produtos..."
+                  className="pl-10 w-full"
                 />
-              </form>
+              </div>
             </div>
           </div>
         )}
