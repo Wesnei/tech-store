@@ -8,6 +8,9 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "Tech-Store",
   description: "E-commerce store built with Next.js and Geist UI",
+   icons: {
+    icon: './mobile-shopping.png',
+  }
 }
 
 export default function RootLayout({
