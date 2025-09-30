@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect, useRef } from "react"
 import { Navbar } from "@/components/layout/navbar"
 import { Footer } from "@/components/layout/footer"
 import { ProductCard } from "@/components/products/product-card"
@@ -20,37 +19,51 @@ export default function HomePage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [modalMode, setModalMode] = useState<"create" | "edit">("create")
   const [isClient, setIsClient] = useState(false)
-  const searchParams = useSearchParams()
-  const searchQuery = searchParams?.get('search') || null
-
-  console.log("🔍 Page component - searchParams:", searchParams, "searchQuery:", searchQuery);
-
-  const { getFilteredProducts, fetchProducts, searchProducts, isLoading, setSearchTerm } = useProducts()
+  const [dynamicSearchTerm, setDynamicSearchTerm] = useState("")
+  
+  const { 
+    products, 
+    isLoading, 
+    error, 
+    searchProducts, 
+    fetchProducts, 
+    getProducts 
+  } = useProducts()
 
   const { user } = useAuth()
-  const filteredProducts = getFilteredProducts()
-  
   const isAdmin = isUserAdmin()
+  
+  const filteredProducts = dynamicSearchTerm 
+    ? products.filter(product => 
+        product.name.toLowerCase().includes(dynamicSearchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(dynamicSearchTerm.toLowerCase())
+      )
+    : products
 
   useEffect(() => {
     setIsClient(true)
-    console.log("🔍 useEffect triggered - searchQuery:", searchQuery);
-    if (searchQuery) {
-      console.log("🔍 Found search query, searching for:", searchQuery)
-      setSearchTerm(searchQuery)
-      searchProducts(searchQuery)
-    } else {
-      console.log("🔍 No search query, fetching all products")
-      fetchProducts()
-    }
-  }, [searchQuery, fetchProducts, searchProducts, setSearchTerm, setIsClient])
+    fetchProducts()
+  }, [fetchProducts])
 
   useEffect(() => {
-    if (!isClient) {
-      setIsClient(true)
+    const handleDynamicSearch = (event: CustomEvent) => {
+      const searchTerm = event.detail.searchTerm
+      setDynamicSearchTerm(searchTerm)
+      
+      if (searchTerm && searchTerm.trim()) {
+        searchProducts(searchTerm)
+      } else {
+        fetchProducts()
+      }
     }
-  }, [isClient])
-  
+
+    window.addEventListener('dynamicSearch', handleDynamicSearch as EventListener)
+    
+    return () => {
+      window.removeEventListener('dynamicSearch', handleDynamicSearch as EventListener)
+    }
+  }, [searchProducts, fetchProducts])
+
   useEffect(() => {
     const handleOpenCreateProductModal = () => {
       if (isAdmin) {
@@ -85,8 +98,6 @@ export default function HomePage() {
   }
 
   const hasProducts = filteredProducts.length > 0
-
-  console.log("🔍 Page render - searchQuery:", searchQuery, "filteredProducts:", filteredProducts.length, "hasProducts:", hasProducts);
 
   if (!isClient) {
     return (
@@ -185,7 +196,7 @@ export default function HomePage() {
                         product={product}
                         onEdit={handleEditProduct}
                         onDelete={handleDeleteProduct}
-                        showActions={!!user}
+                        showActions={isAdmin}
                       />
                     </div>
                   ))}
@@ -198,8 +209,8 @@ export default function HomePage() {
                     </div>
                     <h3 className="text-lg font-semibold">Nenhum produto encontrado</h3>
                     <p className="text-muted-foreground">
-                      {searchQuery 
-                        ? `Nenhum produto encontrado para "${searchQuery}"` 
+                      {dynamicSearchTerm 
+                        ? `Nenhum produto encontrado para "${dynamicSearchTerm}"` 
                         : "Nenhum produto disponível no momento."}
                     </p>
                   </div>
@@ -217,8 +228,8 @@ export default function HomePage() {
         product={selectedProduct}
         mode={modalMode}
         onSuccess={() => {
-          if (searchQuery) {
-            searchProducts(searchQuery)
+          if (dynamicSearchTerm) {
+            searchProducts(dynamicSearchTerm)
           } else {
             fetchProducts()
           }
@@ -230,8 +241,8 @@ export default function HomePage() {
         onClose={() => setIsDeleteModalOpen(false)}
         product={selectedProduct}
         onSuccess={() => {
-          if (searchQuery) {
-            searchProducts(searchQuery)
+          if (dynamicSearchTerm) {
+            searchProducts(dynamicSearchTerm)
           } else {
             fetchProducts()
           }

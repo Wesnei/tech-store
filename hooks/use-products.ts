@@ -28,13 +28,13 @@ interface ProductStore {
   error: string | null
   searchTerm: string
   fetchProducts: () => Promise<void>
+  searchProducts: (term: string) => Promise<void>
   addProduct: (product: Omit<Product, "id" | "createdAt" | "updatedAt">) => Promise<{ success: boolean; message: string }>
   updateProduct: (id: string, product: Partial<Product>) => Promise<{ success: boolean; message: string }>
   deleteProduct: (id: string) => Promise<{ success: boolean; message: string }>
   getProducts: () => Product[]
   getFilteredProducts: () => Product[]
   setSearchTerm: (term: string) => void
-  searchProducts: (term: string) => Promise<void>
 }
 
 export const useProducts = create<ProductStore>()(
@@ -50,20 +50,17 @@ export const useProducts = create<ProductStore>()(
         try {
           const response = await productApi.getProducts()
           if (response.success && response.data) {
-            // Handle both array and object with products array
             let productsArray: Product[] = []
             
             if (Array.isArray(response.data)) {
               productsArray = response.data.map(product => ({
                 ...product,
-                // Map imageUrl to image for consistency
                 image: product.imageUrl || product.image || "/placeholder.svg"
               }))
             } else if (typeof response.data === 'object' && 'products' in response.data) {
               const productsData = (response.data as ProductsResponse).products || []
               productsArray = productsData.map(product => ({
                 ...product,
-                // Map imageUrl to image for consistency
                 image: product.imageUrl || product.image || "/placeholder.svg"
               }))
             }
@@ -79,41 +76,32 @@ export const useProducts = create<ProductStore>()(
       },
 
       searchProducts: async (term: string) => {
-        console.log("🔍 useProducts.searchProducts called with term:", term);
-        set({ isLoading: true, error: null, searchTerm: term })
+        set({ isLoading: true, error: null })
         try {
-          console.log("🔍 Searching for products with term:", term)
           const response = await productApi.getProducts({ name: term })
-          console.log("🔍 Search API response:", response)
-          
           if (response.success && response.data) {
-            // Handle both array and object with products array
             let productsArray: Product[] = []
             
             if (Array.isArray(response.data)) {
               productsArray = response.data.map(product => ({
                 ...product,
-                // Map imageUrl to image for consistency
                 image: product.imageUrl || product.image || "/placeholder.svg"
               }))
             } else if (typeof response.data === 'object' && 'products' in response.data) {
               const productsData = (response.data as ProductsResponse).products || []
               productsArray = productsData.map(product => ({
                 ...product,
-                // Map imageUrl to image for consistency
                 image: product.imageUrl || product.image || "/placeholder.svg"
               }))
             }
             
-            console.log("🔍 Processed search results:", productsArray.length, "products")
             set({ products: productsArray, isLoading: false })
           } else {
-            console.log("🔍 Search returned no results or error:", response.message)
-            set({ products: [], error: response.message, isLoading: false })
+            set({ error: response.message, isLoading: false })
           }
         } catch (error) {
           console.error("Error searching products:", error)
-          set({ products: [], error: "Failed to search products", isLoading: false })
+          set({ error: "Failed to search products", isLoading: false })
         }
       },
 
@@ -211,17 +199,17 @@ export const useProducts = create<ProductStore>()(
           return []
         }
 
-        if (searchTerm) {
-          return products;
+        if (!searchTerm) {
+          return products
         }
-        
-        return products;
+
+        return products.filter((product) => 
+          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.description.toLowerCase().includes(searchTerm.toLowerCase())
+        )
       },
 
-      setSearchTerm: (term: string) => {
-        console.log("🔍 useProducts.setSearchTerm called with term:", term);
-        set({ searchTerm: term });
-      },
+      setSearchTerm: (term: string) => set({ searchTerm: term }),
     }),
     {
       name: "products-storage",
