@@ -164,7 +164,6 @@ O sistema de carrinho de compras está totalmente integrado com a API backend, p
 - Animações suaves para transições e feedback visual
 - Design moderno com foco em usabilidade
 - Ícones intuitivos e feedback visual claro
-- 
 
 ## 🧪 Testes
 
