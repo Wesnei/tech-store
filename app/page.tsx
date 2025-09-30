@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/layout/navbar"
 import { Footer } from "@/components/layout/footer"
 import { ProductCard } from "@/components/products/product-card"
@@ -19,18 +20,30 @@ export default function HomePage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [modalMode, setModalMode] = useState<"create" | "edit">("create")
   const [isClient, setIsClient] = useState(false)
+  const searchParams = useSearchParams()
+  const searchQuery = searchParams?.get('search') || null
 
-  const { getProducts, fetchProducts, isLoading } = useProducts()
+  console.log("🔍 Page component - searchParams:", searchParams, "searchQuery:", searchQuery);
+
+  const { getFilteredProducts, fetchProducts, searchProducts, isLoading, setSearchTerm } = useProducts()
 
   const { user } = useAuth()
-  const products = getProducts()
+  const filteredProducts = getFilteredProducts()
   
   const isAdmin = isUserAdmin()
 
   useEffect(() => {
     setIsClient(true)
-    fetchProducts()
-  }, [fetchProducts])
+    console.log("🔍 useEffect triggered - searchQuery:", searchQuery);
+    if (searchQuery) {
+      console.log("🔍 Found search query, searching for:", searchQuery)
+      setSearchTerm(searchQuery)
+      searchProducts(searchQuery)
+    } else {
+      console.log("🔍 No search query, fetching all products")
+      fetchProducts()
+    }
+  }, [searchQuery, fetchProducts, searchProducts, setSearchTerm, setIsClient])
 
   useEffect(() => {
     if (!isClient) {
@@ -71,7 +84,9 @@ export default function HomePage() {
     setIsDeleteModalOpen(true)
   }
 
-  const hasProducts = products.length > 0
+  const hasProducts = filteredProducts.length > 0
+
+  console.log("🔍 Page render - searchQuery:", searchQuery, "filteredProducts:", filteredProducts.length, "hasProducts:", hasProducts);
 
   if (!isClient) {
     return (
@@ -164,7 +179,7 @@ export default function HomePage() {
             ) : (
               <>
                 <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16 ${hasProducts ? 'block' : 'hidden'}`}>
-                  {products.map((product) => (
+                  {filteredProducts.map((product) => (
                     <div key={product.id} className="animate-slide-up">
                       <ProductCard
                         product={product}
@@ -183,7 +198,9 @@ export default function HomePage() {
                     </div>
                     <h3 className="text-lg font-semibold">Nenhum produto encontrado</h3>
                     <p className="text-muted-foreground">
-                      Nenhum produto disponível no momento.
+                      {searchQuery 
+                        ? `Nenhum produto encontrado para "${searchQuery}"` 
+                        : "Nenhum produto disponível no momento."}
                     </p>
                   </div>
                 </div>
@@ -200,7 +217,11 @@ export default function HomePage() {
         product={selectedProduct}
         mode={modalMode}
         onSuccess={() => {
-          fetchProducts()
+          if (searchQuery) {
+            searchProducts(searchQuery)
+          } else {
+            fetchProducts()
+          }
         }}
       />
 
@@ -209,7 +230,11 @@ export default function HomePage() {
         onClose={() => setIsDeleteModalOpen(false)}
         product={selectedProduct}
         onSuccess={() => {
-          fetchProducts()
+          if (searchQuery) {
+            searchProducts(searchQuery)
+          } else {
+            fetchProducts()
+          }
         }}
       />
     </div>

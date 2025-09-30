@@ -26,11 +26,15 @@ interface ProductStore {
   products: Product[]
   isLoading: boolean
   error: string | null
+  searchTerm: string
   fetchProducts: () => Promise<void>
   addProduct: (product: Omit<Product, "id" | "createdAt" | "updatedAt">) => Promise<{ success: boolean; message: string }>
   updateProduct: (id: string, product: Partial<Product>) => Promise<{ success: boolean; message: string }>
   deleteProduct: (id: string) => Promise<{ success: boolean; message: string }>
   getProducts: () => Product[]
+  getFilteredProducts: () => Product[]
+  setSearchTerm: (term: string) => void
+  searchProducts: (term: string) => Promise<void>
 }
 
 export const useProducts = create<ProductStore>()(
@@ -39,6 +43,7 @@ export const useProducts = create<ProductStore>()(
       products: [],
       isLoading: false,
       error: null,
+      searchTerm: "",
 
       fetchProducts: async () => {
         set({ isLoading: true, error: null })
@@ -70,6 +75,45 @@ export const useProducts = create<ProductStore>()(
         } catch (error) {
           console.error("Error fetching products:", error)
           set({ error: "Failed to fetch products", isLoading: false })
+        }
+      },
+
+      searchProducts: async (term: string) => {
+        console.log("🔍 useProducts.searchProducts called with term:", term);
+        set({ isLoading: true, error: null, searchTerm: term })
+        try {
+          console.log("🔍 Searching for products with term:", term)
+          const response = await productApi.getProducts({ name: term })
+          console.log("🔍 Search API response:", response)
+          
+          if (response.success && response.data) {
+            // Handle both array and object with products array
+            let productsArray: Product[] = []
+            
+            if (Array.isArray(response.data)) {
+              productsArray = response.data.map(product => ({
+                ...product,
+                // Map imageUrl to image for consistency
+                image: product.imageUrl || product.image || "/placeholder.svg"
+              }))
+            } else if (typeof response.data === 'object' && 'products' in response.data) {
+              const productsData = (response.data as ProductsResponse).products || []
+              productsArray = productsData.map(product => ({
+                ...product,
+                // Map imageUrl to image for consistency
+                image: product.imageUrl || product.image || "/placeholder.svg"
+              }))
+            }
+            
+            console.log("🔍 Processed search results:", productsArray.length, "products")
+            set({ products: productsArray, isLoading: false })
+          } else {
+            console.log("🔍 Search returned no results or error:", response.message)
+            set({ products: [], error: response.message, isLoading: false })
+          }
+        } catch (error) {
+          console.error("Error searching products:", error)
+          set({ products: [], error: "Failed to search products", isLoading: false })
         }
       },
 
@@ -105,7 +149,6 @@ export const useProducts = create<ProductStore>()(
           const response = await productApi.updateProduct(id, productData)
           
           if (response.success && response.data) {
-            // Handle both direct product object and object with product property
             const updatedProduct = response.data.product || response.data
             
             set((state) => ({
@@ -158,6 +201,26 @@ export const useProducts = create<ProductStore>()(
         }
 
         return products
+      },
+
+      getFilteredProducts: () => {
+        const { products, searchTerm } = get()
+
+        if (!Array.isArray(products)) {
+          console.error("Products is not an array:", products)
+          return []
+        }
+
+        if (searchTerm) {
+          return products;
+        }
+        
+        return products;
+      },
+
+      setSearchTerm: (term: string) => {
+        console.log("🔍 useProducts.setSearchTerm called with term:", term);
+        set({ searchTerm: term });
       },
     }),
     {

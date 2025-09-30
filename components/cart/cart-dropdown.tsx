@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -12,7 +12,12 @@ import { CartModal } from "./cart-modal"
 
 export function CartDropdown() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { items, updateQuantity, removeItem, getTotalPrice } = useCart()
+  const { items, updateQuantity, removeItem, getTotalPrice, fetchCart } = useCart()
+
+  useEffect(() => {
+    console.log("🛒 CartDropdown: Fetching cart data");
+    fetchCart()
+  }, [fetchCart])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("pt-BR", {

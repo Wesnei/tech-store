@@ -13,7 +13,7 @@ export interface User {
   cpf: string
   phone: string
   token?: string
-  role?: string // Add role to the user interface
+  role?: string 
 }
 
 interface AuthState {
@@ -52,13 +52,10 @@ export const useAuth = create<AuthStore>()(
           const result = await authApi.login({ email, password })
 
           if (result.success && result.data) {
-            // Log the actual response data to understand its structure
             console.log("Login API Response:", result.data);
             
-            // Extract user and token from response - handle various possible structures
             let userData, token;
             
-            // Case 1: Direct user object with token
             if (result.data.user && result.data.token) {
               userData = result.data.user;
               token = result.data.token;
@@ -82,6 +79,8 @@ export const useAuth = create<AuthStore>()(
               ) || result.data.token || userData.token;
             }
             
+            console.log("Extracted token:", token);
+            
             const user: User = {
               id: userData.id || '',
               name: userData.name || 'Unknown User',
@@ -101,6 +100,7 @@ export const useAuth = create<AuthStore>()(
             return { success: false, message: result.message }
           }
         } catch (error: any) {
+          console.error("Login error:", error);
           set({ isLoading: false, error: error.message || "Erro desconhecido" })
           return { success: false, message: error.message || "Falha ao fazer login" }
         }
