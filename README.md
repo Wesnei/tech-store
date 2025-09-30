@@ -1,10 +1,26 @@
 # TechStore - Loja Virtual de Tecnologia
 
+<<<<<<<<< Temporary merge branch 1
+
+
+Uma plataforma de e-commerce moderna para produtos de tecnologia, desenvolvida com Next.js 15, TypeScript e Tailwind CSS.
+
+
+
+## 📝 Descrição do Projeto
+
+
+
+O TechStore é um sistema de loja virtual especializada em produtos de tecnologia. Este projeto foi desenvolvido como **frontend** utilizando Next.js 15 com App Router, TypeScript e Tailwind CSS. O sistema oferece uma experiência de usuário fluida e responsiva, com foco em usabilidade e design moderno.
+
+
+=========
 Uma plataforma de e-commerce moderna para produtos de tecnologia, desenvolvida com Next.js 15, TypeScript e Tailwind CSS.
 
 ## 📝 Descrição do Projeto
 
 O TechStore é um sistema de loja virtual especializada em produtos de tecnologia. Este projeto foi desenvolvido como **frontend** utilizando Next.js 15 com App Router, TypeScript e Tailwind CSS. O sistema oferece uma experiência de usuário fluida e responsiva, com foco em usabilidade e design moderno.
+>>>>>>>>> Temporary merge branch 2
 
 ### 🎯 Objetivo do Projeto
 
@@ -14,29 +30,100 @@ Desenvolver uma aplicação frontend completa para uma loja virtual de tecnologi
 
 - **Interface Moderna e Responsiva**: Design limpo e responsivo com animações suaves
 - **Sistema de Autenticação**: Login e registro com validação de formulários (integrado com API)
+<<<<<<<<< Temporary merge branch 1
+
 - **Gestão de Produtos**: Operações completas de CRUD para produtos (integrado com API)
-- **Carrinho de Compras**: Funcionalidade completa de carrinho com gerenciamento de itens (integrado com API)
+
+- **Carrinho de Compras**: Funcionalidade intuitiva de carrinho com gerenciamento de itens
+
+- **Busca de Produtos**: Busca simples por nome e descrição (via barra de pesquisa na navbar)
+
+- **Visualização Detalhada de Produtos**: Página de detalhes para cada produto
+
+- **Design Responsivo**: Interface adaptativa para todos os tamaños de dispositivos
+
+=========
+- **Gestão de Produtos**: Operações completas de CRUD para produtos (integrado com API)
+- **Carrinho de Compras**: Funcionalidade intuitiva de carrinho com gerenciamento de itens
 - **Busca de Produtos**: Busca simples por nome e descrição (via barra de pesquisa na navbar)
 - **Visualização Detalhada de Produtos**: Página de detalhes para cada produto
 - **Design Responsivo**: Interface adaptativa para todos os tamaños de dispositivos
+>>>>>>>>> Temporary merge branch 2
 - **Sistema de Notificações**: Toasts para feedback do usuário
 - **Controle de Acesso Baseado em Funções**: Funcionalidades restritas a administradores
 
+- **Controle de Acesso Baseado em Funções**: Funcionalidades restritas a administradores
+
+
+
 ## 🛠️ Stack Tecnológica
 
+<<<<<<<<< Temporary merge branch 1
+
+
 - **Frontend**: Next.js 15 com App Router
+
+=========
+- **Frontend**: Next.js 15 com App Router
+>>>>>>>>> Temporary merge branch 2
 - **Linguagem**: TypeScript
 - **Estilização**: Tailwind CSS v4
 - **Componentes UI**: Componentes customizados baseados em Radix UI
+<<<<<<<<< Temporary merge branch 1
+
 - **Gerenciamento de Estado**: Zustand com persistência
+
+=========
+- **Gerenciamento de Estado**: Zustand com persistência
+>>>>>>>>> Temporary merge branch 2
 - **Ícones**: Lucide React
 - **Validações**: Funções customizadas para CPF, email, etc.
+<<<<<<<<< Temporary merge branch 1
+
 - **API Client**: Axios com interceptors para autenticação automática
+
+
+=========
+- **API Client**: Axios com interceptors para autenticação automática
+>>>>>>>>> Temporary merge branch 2
 
 ## 📁 Estrutura do Projeto
 
 ```
 tech-store/
+<<<<<<<<< Temporary merge branch 1
+
+├── app/                 # Next.js 15 App Router
+
+│   ├── auth/           # Páginas de autenticação
+
+│   ├── products/       # Páginas de produtos
+
+│   │   └── [id]/       # Página de detalhes do produto
+
+│   ├── globals.css     # Estilos globais
+
+│   └── layout.tsx      # Layout principal
+
+├── components/         # Componentes reutilizáveis
+
+│   ├── auth/           # Componentes de autenticação
+
+│   ├── cart/           # Componentes do carrinho
+
+│   ├── layout/         # Navbar e Footer
+
+│   ├── products/       # Componentes de produtos
+
+│   └── ui/             # Componentes primitivos (15 componentes)
+
+├── hooks/              # Hooks customizados
+
+├── lib/                # Utilitários e validações
+
+└── public/             # Imagens e assets
+
+=========
 ├── app/                 # Next.js 15 App Router
 │   ├── auth/           # Páginas de autenticação
 │   ├── products/       # Páginas de produtos
@@ -52,6 +139,7 @@ tech-store/
 ├── hooks/              # Hooks customizados
 ├── lib/                # Utilitários e validações
 └── public/             # Imagens e assets
+>>>>>>>>> Temporary merge branch 2
 ```
 
 ## 🚀 Como Executar
@@ -74,6 +162,18 @@ Copie o arquivo [.env.example](.env.example) para `.env.local` e configure as va
 cp .env.example .env.local
 ```
 
+<<<<<<<<< Temporary merge branch 1
+
+
+Configure a URL da API no arquivo `.env.local`:
+
+
+
+```env
+
+NEXT_PUBLIC_API_URL=https://marketplace-api-wuuc.onrender.com
+
+=========
 Configure a URL da API no arquivo `.env.local`:
 
 ```env
@@ -83,7 +183,20 @@ NEXT_PUBLIC_API_URL=https://marketplace-api-wuuc.onrender.com
 ### Execução
 ```bash
 npm run dev
+>>>>>>>>> Temporary merge branch 2
 ```
+
+
+
+### Execução
+
+```bash
+
+npm run dev
+
+```
+
+
 
 Acesse [http://localhost:3000](http://localhost:3000)
 
@@ -136,27 +249,124 @@ A integração com a API está completamente implementada:
 - `PUT /products/{id}` - Atualizar produto (apenas administradores)
 - `DELETE /products/{id}` - Excluir produto (apenas administradores)
 
-## 🛒 Carrinho de Compras
-
-O sistema de carrinho de compras está totalmente integrado com a API backend, permitindo operações completas de gerenciamento:
-
-- **Sincronização com API**: O carrinho é automaticamente sincronizado com o backend
-- **Adição de Produtos**: Adição de produtos ao carrinho com quantidade
-- **Remoção de Produtos**: Remoção de produtos do carrinho
-- **Atualização de Quantidade**: Aumento ou diminuição da quantidade de produtos no carrinho
-- **Persistência de Dados**: O carrinho é mantido mesmo após recarregar a página
-
-### Endpoints da API de Carrinho
-
-- `GET /cart` - Obter o carrinho do usuário com todos os produtos e preço total
-- `POST /cart/add-product` - Adicionar um produto ao carrinho
-- `DELETE /cart/remove-product` - Remover um produto do carrinho
-- `PATCH /cart/decrease-quantity` - Diminuir a quantidade de um produto no carrinho
-
 ## 🔍 Busca de Produtos
 
 - Barra de pesquisa na navbar para busca rápida de produtos
 - Filtragem em tempo real conforme o usuário digita
+
+- **Autenticação com Bearer Tokens**: Tokens JWT são automaticamente incluídos em todas as requisições da API
+
+- **Verificação de Funções**: Controle de acesso baseado em funções (admin/usuário)
+
+
+
+## 🛍️ Gestão de Produtos
+
+
+
+O sistema de gestão de produtos está totalmente integrado com a API backend, permitindo operações completas de CRUD:
+
+
+
+- **Listagem de Produtos**: Carregamento automático de produtos da API
+
+- **Visualização Detalhada**: Página de detalhes para cada produto acessível via clique no card do produto
+
+- **Criação de Produtos**: Adição de novos produtos (apenas administradores)
+
+- **Edição de Produtos**: Atualização de informações de produtos existentes (apenas administradores)
+
+- **Exclusão de Produtos**: Remoção de produtos (apenas administradores)
+
+
+
+### Controles de Acesso
+
+
+
+- A funcionalidade "Adicionar Produto" só é visível para usuários com função de administrador
+
+- Os botões de edição e exclusão de produtos são visíveis apenas para usuários autenticados
+
+- Todos os usuários podem visualizar produtos e adicionar ao carrinho
+
+
+
+### Integração com API
+
+
+
+A integração com a API está completamente implementada:
+
+
+
+- **Autenticação Automática**: Tokens Bearer são automaticamente adicionados aos headers das requisições
+
+- **Tratamento de Erros**: Mensagens de erro claras para problemas de autenticação ou validação
+
+- **Atualização em Tempo Real**: A lista de produtos é atualizada automaticamente após operações de criação, edição ou exclusão
+
+
+
+### Endpoints da API de Produtos
+
+
+
+- `GET /products` - Listar produtos com paginação
+
+- `POST /products` - Criar novo produto (apenas administradores)
+
+- `GET /products/{id}` - Obter produto por ID
+
+- `PUT /products/{id}` - Atualizar produto (apenas administradores)
+
+- `DELETE /products/{id}` - Excluir produto (apenas administradores)
+
+
+
+## 🔍 Busca de Produtos
+
+
+
+- Barra de pesquisa na navbar para busca rápida de produtos
+
+- Filtragem em tempo real conforme o usuário digita
+
+
+
+## 🛒 Carrinho de Compras
+
+<<<<<<<<< Temporary merge branch 1
+
+
+- Adição de produtos ao carrinho
+
+- Gerenciamento de quantidades
+
+- Cálculo automático de totais
+
+- Persistência de dados entre sessões
+
+
+
+## 🎨 Design e Experiência do Usuário
+
+
+
+- Interface totalmente responsiva para desktop, tablet e mobile
+
+- Animações suaves para transições e feedback visual
+
+- Design moderno com foco em usabilidade
+
+- Ícones intuitivos e feedback visual claro
+
+
+=========
+- Adição de produtos ao carrinho
+- Gerenciamento de quantidades
+- Cálculo automático de totais
+- Persistência de dados entre sessões
 
 ## 🎨 Design e Experiência do Usuário
 
@@ -164,22 +374,30 @@ O sistema de carrinho de compras está totalmente integrado com a API backend, p
 - Animações suaves para transições e feedback visual
 - Design moderno com foco em usabilidade
 - Ícones intuitivos e feedback visual claro
+>>>>>>>>> Temporary merge branch 2
 
-## 🛠️ Troubleshooting
+## 🎯 Funcionalidades Técnicas
 
-If you encounter authentication issues (401 errors), refer to the [Authentication Troubleshooting Guide](AUTH_TROUBLESHOOTING.md) for detailed diagnosis and solutions.
 
-## 🧪 Testes
 
-Para testar a integração com a API, você pode executar o script de teste:
+- **CRUD Completo**: Criar, listar, editar e deletar produtos
 
-```bash
-npm run test:api
-```
+- **Validações**: CPF, email, telefone com máscaras
 
-Ou verificar diretamente no console do navegador ao acessar a aplicação.
+- **Estado Global**: Gerenciamento com Zustand
 
-## 🔐 Licença
+- **TypeScript**: Tipagem completa
+
+- **Toasts**: Sistema de notificações
+
+- **API Integration**: Integração completa com endpoints de autenticação
+
+
+
+## 📄 Licença
+
+<<<<<<<<< Temporary merge branch 1
+
 
 Este projeto é proprietário e confidencial.
 
