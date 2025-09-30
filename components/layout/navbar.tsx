@@ -26,17 +26,15 @@ import {
 } from "lucide-react"
 import { CartDropdown } from "@/components/cart/cart-dropdown"
 import { useAuth } from "@/hooks/use-auth"
-import { isUserAdmin } from "@/lib/auth"
+import { isAdmin } from "@/lib/permissions"
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const { user, logout } = useAuth()
   const router = useRouter()
-  const isAdmin = isUserAdmin()
-
-  useEffect(() => {
-  }, [])
+  
+  const canAddProducts = isAdmin(user)
 
   const handleAuthClick = () => {
     if (user) {
@@ -118,7 +116,7 @@ export function Navbar() {
                     <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
                   <DropdownMenuSeparator />
-                  {isAdmin && (
+                  {canAddProducts && (
                     <>
                       <DropdownMenuItem onClick={handleAddProduct}>
                         <Plus className="mr-2 h-4 w-4" />

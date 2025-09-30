@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, Sparkles, Shield, Truck } from "lucide-react"
 import { useProducts, type Product } from "@/hooks/use-products"
 import { useAuth } from "@/hooks/use-auth"
-import { isUserAdmin } from "@/lib/auth"
+import { isAdmin } from "@/lib/permissions"
 
 export default function HomePage() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false)
@@ -31,7 +31,8 @@ export default function HomePage() {
   } = useProducts()
 
   const { user } = useAuth()
-  const isAdmin = isUserAdmin()
+  
+  const canEditProducts = isAdmin(user)
   
   const filteredProducts = dynamicSearchTerm 
     ? products.filter(product => 
@@ -66,7 +67,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const handleOpenCreateProductModal = () => {
-      if (isAdmin) {
+      if (canEditProducts) {
         setSelectedProduct(null)
         setModalMode("create")
         setIsProductModalOpen(true)
@@ -78,7 +79,7 @@ export default function HomePage() {
     return () => {
       window.removeEventListener('openCreateProductModal', handleOpenCreateProductModal)
     }
-  }, [isAdmin])
+  }, [canEditProducts])
 
   const handleCreateProduct = () => {
     setSelectedProduct(null)
@@ -196,7 +197,7 @@ export default function HomePage() {
                         product={product}
                         onEdit={handleEditProduct}
                         onDelete={handleDeleteProduct}
-                        showActions={isAdmin}
+                        showActions={canEditProducts}
                       />
                     </div>
                   ))}

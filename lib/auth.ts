@@ -36,7 +36,7 @@ export const getAuthToken = (): string | null => {
         token = searchForToken(authData);
       }
       
-      console.log("🔍 Extracted token:", token ? `${token.substring(0, 20)}...` : "None"); // Debug log
+      console.log("🔍 Extracted token:", token ? `${token.substring(0, 20)}...` : "None"); 
       
       if (token && typeof token === 'string' && token.startsWith('eyJ')) {
         return token;
@@ -108,10 +108,10 @@ export const isUserAdmin = (): boolean => {
       return true;
     }
     
-    return isAuthenticated();
+    return false;
   } catch (e) {
     console.warn('Failed to decode JWT token for role checking', e);
-    return isAuthenticated();
+    return false;
   }
 };
 
