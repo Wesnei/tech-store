@@ -5,7 +5,7 @@ export const getAuthToken = (): string | null => {
 
   try {
     const authStorage = localStorage.getItem('auth-storage');
-    console.log("🔍 Auth storage raw value:", authStorage); // Debug log
+    console.log("🔍 Auth storage raw value:", authStorage); 
     
     if (authStorage) {
       const authData = JSON.parse(authStorage);
@@ -48,6 +48,16 @@ export const getAuthToken = (): string | null => {
     }
   } catch (e) {
     console.warn('Failed to parse auth storage', e);
+  }
+
+  try {
+    const directToken = localStorage.getItem('token');
+    if (directToken && directToken.startsWith('eyJ')) {
+      console.log("🔍 Found direct token in localStorage:", directToken.substring(0, 20) + "...");
+      return directToken;
+    }
+  } catch (e) {
+    console.warn('Failed to get direct token from localStorage', e);
   }
 
   console.log("🔍 Returning null token");

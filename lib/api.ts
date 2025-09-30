@@ -13,7 +13,8 @@ api.interceptors.request.use(
       method: config.method?.toUpperCase(),
       url: config.url,
       baseURL: config.baseURL,
-      fullURL: `${config.baseURL}${config.url}`
+      fullURL: `${config.baseURL}${config.url}`,
+      params: config.params
     });
     
     const token = getAuthToken();
@@ -52,22 +53,43 @@ api.interceptors.response.use(
     console.log("✅ API Response:", {
       status: response.status,
       statusText: response.statusText,
-      url: response.config?.url
+      url: response.config?.url,
+      data: response.data
     });
     return response;
   },
   (error) => {
-    console.error("❌ API Error:", {
-      message: error.message,
-      code: error.code,
+    const errorInfo = {
+      message: error.message || 'Unknown error',
+      code: error.code || 'UNKNOWN_ERROR',
       status: error.response?.status,
       statusText: error.response?.statusText,
       url: error.config?.url,
-      response: error.response?.data
-    });
+      response: error.response?.data,
+      config: error.config
+    };
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.error("❌ API Error:", errorInfo.message, `(Status: ${errorInfo.status})`);
+      console.error("❌ Detailed API Error:", {
+        url: errorInfo.url,
+        status: errorInfo.status,
+        statusText: errorInfo.statusText,
+        responseData: errorInfo.response,
+        requestHeaders: errorInfo.config?.headers
+      });
+    } else {
+      console.error("❌ API Error:", errorInfo.message, `(Status: ${errorInfo.status})`);
+    }
     
     if (error.response?.status === 401) {
       console.warn('🔐 Unauthorized access - token may be invalid or expired');
+    }
+    
+    if (error.response?.status === 404) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`📍 API endpoint not found: ${errorInfo.url} - feature may not be implemented on backend yet`);
+      }
     }
     
     return Promise.reject(error);
@@ -90,10 +112,11 @@ export const productApi = {
         message: 'Products retrieved successfully'
       };
     } catch (error: any) {
+      console.error("❌ Get products error:", error);
       return {
         success: false,
         data: null,
-        message: error.response?.data?.message || 'Failed to retrieve products'
+        message: error.response?.data?.message || error.message || 'Failed to retrieve products'
       };
     }
   },
@@ -111,10 +134,11 @@ export const productApi = {
         message: 'Product retrieved successfully'
       };
     } catch (error: any) {
+      console.error("❌ Get product error:", error);
       return {
         success: false,
         data: null,
-        message: error.response?.data?.message || 'Failed to retrieve product'
+        message: error.response?.data?.message || error.message || 'Failed to retrieve product'
       };
     }
   },
@@ -158,7 +182,7 @@ export const productApi = {
       return {
         success: false,
         data: null,
-        message: error.response?.data?.message || 'Failed to create product'
+        message: error.response?.data?.message || error.message || 'Failed to create product'
       };
     }
   },
@@ -213,7 +237,7 @@ export const productApi = {
       return {
         success: false,
         data: null,
-        message: error.response?.data?.message || 'Failed to update product'
+        message: error.response?.data?.message || error.message || 'Failed to update product'
       };
     }
   },
@@ -231,7 +255,7 @@ export const productApi = {
       return {
         success: false,
         data: null,
-        message: error.response?.data?.message || 'Failed to delete product'
+        message: error.response?.data?.message || error.message || 'Failed to delete product'
       };
     }
   }
@@ -251,7 +275,7 @@ export const authApi = {
       return {
         success: false,
         data: null,
-        message: error.response?.data?.message || 'Failed to login'
+        message: error.response?.data?.message || error.message || 'Failed to login'
       };
     }
   },
@@ -275,7 +299,131 @@ export const authApi = {
       return {
         success: false,
         data: null,
-        message: error.response?.data?.message || 'Failed to register'
+        message: error.response?.data?.message || error.message || 'Failed to register'
+      };
+    }
+  }
+};
+
+export const cartApi = {
+  getCart: async () => {
+    try {
+      const response = await api.get('/cart');
+      return {
+        success: true,
+        data: response.data,
+        message: 'Cart retrieved successfully'
+      };
+    } catch (error: any) {
+      // Handle 404 specifically
+      if (error?.response?.status === 404) {
+        // Only show warning in development
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🛒 Cart API not implemented on backend yet, using local storage');
+        }
+        return {
+          success: false,
+          data: null,
+          message: 'Cart API not implemented on backend yet'
+        };
+      }
+      
+      return {
+        success: false,
+        data: null,
+        message: error?.response?.data?.message || error?.message || 'Failed to retrieve cart'
+      };
+    }
+  },
+
+  addProductToCart: async (productId: string, quantity: number = 1) => {
+    try {
+      const response = await api.post('/cart/add-product', { productId, quantity });
+      return {
+        success: true,
+        data: response.data,
+        message: 'Product added to cart successfully'
+      };
+    } catch (error: any) {
+      // Handle 404 specifically
+      if (error?.response?.status === 404) {
+        // Only show warning in development
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🛒 Cart API not implemented on backend yet, using local storage');
+        }
+        return {
+          success: false,
+          data: null,
+          message: 'Cart API not implemented on backend yet'
+        };
+      }
+      
+      return {
+        success: false,
+        data: null,
+        message: error?.response?.data?.message || error?.message || 'Failed to add product to cart'
+      };
+    }
+  },
+
+  removeProductFromCart: async (productId: string) => {
+    try {
+      const response = await api.delete('/cart/remove-product', {
+        data: { productId }
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: 'Product removed from cart successfully'
+      };
+    } catch (error: any) {
+      // Handle 404 specifically
+      if (error?.response?.status === 404) {
+        // Only show warning in development
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🛒 Cart API not implemented on backend yet, using local storage');
+        }
+        return {
+          success: false,
+          data: null,
+          message: 'Cart API not implemented on backend yet'
+        };
+      }
+      
+      return {
+        success: false,
+        data: null,
+        message: error?.response?.data?.message || error?.message || 'Failed to remove product from cart'
+      };
+    }
+  },
+
+  decreaseProductQuantity: async (productId: string, quantity: number) => {
+    try {
+      const response = await api.patch('/cart/decrease-quantity', { productId, quantity });
+      return {
+        success: true,
+        data: response.data,
+        message: 'Product quantity updated successfully'
+      };
+    } catch (error: any) {
+      // Handle 404 specifically
+      if (error?.response?.status === 404) {
+        // Only show warning in development
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🛒 Cart API not implemented on backend yet, using local storage');
+        }
+        return {
+          success: false,
+          data: null,
+          message: 'Cart API not implemented on backend yet'
+        };
+      }
+      
+      return {
+        success: false,
+        data: null,
+        message: error?.response?.data?.message || error?.message || 'Failed to update product quantity'
       };
     }
   }

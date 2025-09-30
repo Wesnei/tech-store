@@ -21,14 +21,16 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [visibleItemsCount, setVisibleItemsCount] = useState(5)
 
-  const { items, getTotalPrice, clearCart } = useCart()
+  const { items, getTotalPrice, clearCart, fetchCart } = useCart()
   const { user } = useAuth()
 
   useEffect(() => {
     if (isOpen) {
+      console.log("🛒 CartModal: Opening modal and fetching cart data");
       setVisibleItemsCount(5)
+      fetchCart()
     }
-  }, [isOpen])
+  }, [isOpen, fetchCart])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("pt-BR", {
