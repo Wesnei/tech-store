@@ -27,12 +27,12 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Sobre Nós
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Contato
                 </Link>
               </li>
@@ -44,17 +44,17 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-foreground">Suporte</h3>
             <ul className="space-y-2 flex flex-col items-center">
               <li>
-                <Link href="/help" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Central de Ajuda
                 </Link>
               </li>
               <li>
-                <Link href="/shipping" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Entrega
                 </Link>
               </li>
               <li>
-                <Link href="/returns" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Devoluções
                 </Link>
               </li>
@@ -75,7 +75,7 @@ export function Footer() {
               </li>
               <li className="flex items-center space-x-2 text-sm text-muted-foreground justify-center">
                 <MapPin className="h-4 w-4" />
-                <span>São Paulo, SP</span>
+                <span>Boa Viagem - CE</span>
               </li>
             </ul>
           </div>
