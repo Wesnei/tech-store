@@ -261,6 +261,12 @@ export const productApi = {
   }
 };
 
+export const getProducts = productApi.getProducts;
+export const getProductById = productApi.getProductById;
+export const createProduct = productApi.createProduct;
+export const updateProduct = productApi.updateProduct;
+export const deleteProduct = productApi.deleteProduct;
+
 export const authApi = {
   login: async (credentials: { email: string; password: string }) => {
     try {
@@ -315,9 +321,18 @@ export const cartApi = {
         message: 'Cart retrieved successfully'
       };
     } catch (error: any) {
-      // Handle 404 specifically
+      if (error?.response?.status === 401) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🛒 Cart API requires authentication, using local storage');
+        }
+        return {
+          success: false,
+          data: null,
+          message: 'Cart API requires authentication'
+        };
+      }
+      
       if (error?.response?.status === 404) {
-        // Only show warning in development
         if (process.env.NODE_ENV === 'development') {
           console.warn('🛒 Cart API not implemented on backend yet, using local storage');
         }
@@ -345,9 +360,18 @@ export const cartApi = {
         message: 'Product added to cart successfully'
       };
     } catch (error: any) {
-      // Handle 404 specifically
+      if (error?.response?.status === 401) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🛒 Cart API requires authentication, using local storage');
+        }
+        return {
+          success: false,
+          data: null,
+          message: 'Cart API requires authentication'
+        };
+      }
+      
       if (error?.response?.status === 404) {
-        // Only show warning in development
         if (process.env.NODE_ENV === 'development') {
           console.warn('🛒 Cart API not implemented on backend yet, using local storage');
         }
@@ -377,9 +401,18 @@ export const cartApi = {
         message: 'Product removed from cart successfully'
       };
     } catch (error: any) {
-      // Handle 404 specifically
+      if (error?.response?.status === 401) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🛒 Cart API requires authentication, using local storage');
+        }
+        return {
+          success: false,
+          data: null,
+          message: 'Cart API requires authentication'
+        };
+      }
+      
       if (error?.response?.status === 404) {
-        // Only show warning in development
         if (process.env.NODE_ENV === 'development') {
           console.warn('🛒 Cart API not implemented on backend yet, using local storage');
         }
@@ -407,9 +440,18 @@ export const cartApi = {
         message: 'Product quantity updated successfully'
       };
     } catch (error: any) {
-      // Handle 404 specifically
+      if (error?.response?.status === 401) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🛒 Cart API requires authentication, using local storage');
+        }
+        return {
+          success: false,
+          data: null,
+          message: 'Cart API requires authentication'
+        };
+      }
+      
       if (error?.response?.status === 404) {
-        // Only show warning in development
         if (process.env.NODE_ENV === 'development') {
           console.warn('🛒 Cart API not implemented on backend yet, using local storage');
         }
