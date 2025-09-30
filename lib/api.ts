@@ -433,7 +433,7 @@ export const cartApi = {
 
   decreaseProductQuantity: async (productId: string, quantity: number) => {
     try {
-      const response = await api.patch('/cart/decrease-quantity', { productId, quantity });
+      const response = await api.patch('/cart/update-quantity', { productId, quantity });
       return {
         success: true,
         data: response.data,
@@ -466,6 +466,45 @@ export const cartApi = {
         success: false,
         data: null,
         message: error?.response?.data?.message || error?.message || 'Failed to update product quantity'
+      };
+    }
+  },
+
+  clearCart: async () => {
+    try {
+      const response = await api.delete('/cart/clear');
+      return {
+        success: true,
+        data: response.data,
+        message: 'Cart cleared successfully'
+      };
+    } catch (error: any) {
+      if (error?.response?.status === 401) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🛒 Cart API requires authentication, using local storage');
+        }
+        return {
+          success: false,
+          data: null,
+          message: 'Cart API requires authentication'
+        };
+      }
+      
+      if (error?.response?.status === 404) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('🛒 Cart API not implemented on backend yet, using local storage');
+        }
+        return {
+          success: false,
+          data: null,
+          message: 'Cart API not implemented on backend yet'
+        };
+      }
+      
+      return {
+        success: false,
+        data: null,
+        message: error?.response?.data?.message || error?.message || 'Failed to clear cart'
       };
     }
   }

@@ -21,11 +21,40 @@ export function CartItemComponent({ item }: CartItemProps) {
     }).format(price)
   }
 
-  const handleQuantityChange = (newQuantity: number) => {
-    if (newQuantity <= 0) {
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    if (value === "") {
+      return
+    }
+    
+    const newQuantity = Number.parseInt(value)
+    if (isNaN(newQuantity) || newQuantity < 0) {
+      e.target.value = item.quantity.toString()
+      return
+    }
+    
+    if (newQuantity === 0) {
       removeItem(item.id)
     } else {
       updateQuantity(item.id, newQuantity)
+    }
+  }
+
+  const handleQuantityBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.target.value === "") {
+      e.target.value = item.quantity.toString()
+    }
+  }
+
+  const incrementQuantity = () => {
+    updateQuantity(item.id, item.quantity + 1)
+  }
+
+  const decrementQuantity = () => {
+    if (item.quantity <= 1) {
+      removeItem(item.id)
+    } else {
+      updateQuantity(item.id, item.quantity - 1)
     }
   }
 
@@ -45,16 +74,17 @@ export function CartItemComponent({ item }: CartItemProps) {
           variant="outline"
           size="icon"
           className="h-8 w-8 bg-transparent cursor-pointer"
-          onClick={() => handleQuantityChange(item.quantity - 1)}
+          onClick={decrementQuantity}
         >
           <Minus className="h-3 w-3" />
         </Button>
 
         <Input
           type="number"
-          min="1"
+          min="0"
           value={item.quantity}
-          onChange={(e) => handleQuantityChange(Number.parseInt(e.target.value) || 1)}
+          onChange={handleQuantityChange}
+          onBlur={handleQuantityBlur}
           className="w-16 h-8 text-center text-sm"
         />
 
@@ -62,7 +92,7 @@ export function CartItemComponent({ item }: CartItemProps) {
           variant="outline"
           size="icon"
           className="h-8 w-8 bg-transparent cursor-pointer"
-          onClick={() => handleQuantityChange(item.quantity + 1)}
+          onClick={incrementQuantity}
         >
           <Plus className="h-3 w-3" />
         </Button>

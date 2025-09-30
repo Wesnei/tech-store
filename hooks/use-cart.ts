@@ -19,7 +19,7 @@ interface CartStore {
   addItem: (item: Omit<CartItem, "quantity">) => Promise<void>
   removeItem: (id: string) => Promise<void>
   updateQuantity: (id: string, quantity: number) => Promise<void>
-  clearCart: () => void
+  clearCart: () => Promise<void>
   getTotalPrice: () => number
   fetchCart: () => Promise<void>
 }
@@ -56,7 +56,6 @@ export const useCart = create<CartStore>()(
             set({ isLoading: false })
           }
         } catch (error: any) {
-          // If API is not available, keep local storage data
           if (!hasWarnedAboutAPI) {
             console.warn("🛒 Cart API not available, using local storage data:", error.message)
             hasWarnedAboutAPI = true;
@@ -71,6 +70,7 @@ export const useCart = create<CartStore>()(
           const response = await cartApi.addProductToCart(item.id, 1)
           console.log("🛒 Add to cart API response:", response)
           if (response.success) {
+            // Use API data if available
             const items = get().items
             const existingItem = items.find((i) => i.id === item.id)
 
@@ -86,6 +86,7 @@ export const useCart = create<CartStore>()(
               })
             }
           } else {
+            // Fallback to local storage
             const items = get().items
             const existingItem = items.find((i) => i.id === item.id)
 
@@ -182,8 +183,22 @@ export const useCart = create<CartStore>()(
         }
       },
 
-      clearCart: () => {
-        set({ items: [] })
+      clearCart: async () => {
+        set({ isLoading: true, error: null })
+        try {
+          const response = await cartApi.clearCart()
+          if (response.success) {
+            set({ items: [], isLoading: false })
+          } else {
+            set({ items: [], isLoading: false })
+          }
+        } catch (error: any) {
+          if (!hasWarnedAboutAPI) {
+            console.warn("🛒 Cart API not available, clearing cart locally:", error.message)
+            hasWarnedAboutAPI = true;
+          }
+          set({ items: [], isLoading: false })
+        }
       },
 
       getTotalPrice: () => {
@@ -192,6 +207,7 @@ export const useCart = create<CartStore>()(
     }),
     {
       name: "cart-storage",
+      partialize: (state) => ({ items: state.items }), // Only persist items
     },
   ),
 )

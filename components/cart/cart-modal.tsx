@@ -21,16 +21,8 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [visibleItemsCount, setVisibleItemsCount] = useState(5)
 
-  const { items, getTotalPrice, clearCart, fetchCart } = useCart()
+  const { items, getTotalPrice, clearCart } = useCart()
   const { user } = useAuth()
-
-  useEffect(() => {
-    if (isOpen) {
-      console.log("🛒 CartModal: Opening modal and fetching cart data");
-      setVisibleItemsCount(5)
-      fetchCart()
-    }
-  }, [isOpen, fetchCart])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -52,22 +44,48 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
 
     setIsCheckingOut(true)
 
+    // Simulate API call for checkout
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
+    // Clear cart after successful checkout
+    await clearCart()
+    
     setAlert({ type: "success", message: "Pedido realizado com sucesso! Obrigado pela compra." })
-    clearCart()
     setIsCheckingOut(false)
 
+    // Close modal after success message
     setTimeout(() => {
       onClose()
+      setAlert(null) // Clear alert when closing
     }, 2000)
   }
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
   const totalPrice = getTotalPrice()
 
+  // Reset visible items count when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setVisibleItemsCount(5)
+      setAlert(null)
+    }
+  }, [isOpen])
+
+  // Reset alert when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setAlert(null)
+      setVisibleItemsCount(5)
+    }
+  }, [isOpen])
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        setAlert(null)
+      }
+      onClose()
+    }}>
       <DialogContent className="sm:max-w-[480px] h-auto max-h-[calc(100vh-2rem)] flex flex-col w-[95vw] max-w-[95vw] sm:w-auto p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="flex items-center gap-2">
